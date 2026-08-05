@@ -3,9 +3,9 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import Nav from "./components/layout/Navbar";
 
 import HomePage from "./pages/HomePage";
-//import ContactPage from "./pages/ContactPage";
+
 import TestPage from "./pages/TestPage";
-//import CoursesPage from "./pages/CoursesPage";
+import PertPage from "./pages/PertPage";
 
 function App() {
   return (
@@ -13,7 +13,7 @@ function App() {
       <Nav />
       <Routes>
         <Route path="/" element={<HomePage />} />
-
+        <Route path="/pert" element={<PertPage />} />
         <Route path="/test" element={<TestPage />} />
       </Routes>
     </div>
