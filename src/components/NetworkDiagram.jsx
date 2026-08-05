@@ -32,7 +32,7 @@ export default function NetworkDiagram({ tasks }) {
   }, [tasks]);
 
   return (
-    <div className="diagram">
+    <div className="h-full w-full">
       <ReactFlow
         nodes={nodes}
         edges={edges}
