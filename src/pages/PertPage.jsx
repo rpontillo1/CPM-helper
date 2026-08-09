@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 
-import TaskForm from "../components/TaskForm";
 import TaskTable from "../components/TaskTable";
 import NetworkDiagram from "../components/NetworkDiagram";
 
@@ -83,9 +82,7 @@ export default function PertPage() {
     <main className="flex min-h-screen w-full flex-col gap-6 bg-gray-100 p-6">
       <header className="flex flex-col justify-between gap-4 rounded border border-black bg-white p-4 md:flex-row md:items-center">
         <div>
-          <h1 className="text-3xl font-bold">
-            Critical Path Diagram Generator
-          </h1>
+          <h1 className="">Critical Path Diagram Generator</h1>
 
           <p className="text-gray-600">
             Add tasks, durations, and predecessors to create a CPM diagram.
@@ -109,10 +106,6 @@ export default function PertPage() {
         </div>
       </header>
 
-      <section className="rounded border border-black bg-white p-4">
-        <TaskForm tasks={tasks} onAddTask={addTask} />
-      </section>
-
       {displayedError && (
         <div className="rounded border border-red-500 bg-red-100 p-3 text-center text-red-700">
           {displayedError}
@@ -121,7 +114,7 @@ export default function PertPage() {
 
       <section className="rounded border border-black bg-white p-4">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Tasks</h2>
+          <h2 className="">Tasks</h2>
 
           {tasks.length > 0 && (
             <button
@@ -134,7 +127,11 @@ export default function PertPage() {
           )}
         </div>
 
-        <TaskTable tasks={tasks} onRemoveTask={removeTask} />
+        <TaskTable
+          tasks={tasks}
+          onAddTask={addTask}
+          onRemoveTask={removeTask}
+        />
       </section>
 
       <section className="rounded border border-red-500 bg-red-50 p-4">
@@ -144,7 +141,7 @@ export default function PertPage() {
       </section>
 
       <section className="rounded border border-black bg-white p-4">
-        <h2 className="mb-4 text-2xl font-bold">Network Diagram</h2>
+        <h2 className="mb-4">Network Diagram</h2>
 
         <div className="h-[650px] w-full overflow-hidden rounded border border-black">
           {tasks.length === 0 ? (

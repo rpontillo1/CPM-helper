@@ -68,7 +68,7 @@ export default function TaskForm({ tasks, onAddTask }) {
 
   return (
     <form className="flex w-full flex-col gap-2" onSubmit={handleSubmit}>
-      <h2>Add Task</h2>
+      <h2 className="">Add Task</h2>
 
       <div className="flex w-full flex-row justify-between gap-2">
         <div className="flex flex-col">
