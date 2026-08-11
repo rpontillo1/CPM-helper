@@ -1,5 +1,8 @@
 import { useMemo, useState } from "react";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCaretDown, faCaretUp } from "@fortawesome/free-solid-svg-icons";
+
 import TaskTable from "../components/TaskTable";
 import NetworkDiagram from "../components/NetworkDiagram";
 
@@ -7,8 +10,9 @@ import { calculateCriticalPath } from "../utils/calculateCriticalPath";
 import { sampleTasks } from "../data/sampleData";
 
 export default function PertPage() {
-  const [tasks, setTasks] = useState(sampleTasks);
+  const [tasks, setTasks] = useState([]);
   const [actionError, setActionError] = useState("");
+  const [tasksExpanded, setTasksExpanded] = useState(true);
 
   const calculationResult = useMemo(() => {
     if (tasks.length === 0) {
@@ -71,6 +75,12 @@ export default function PertPage() {
     setActionError("");
   };
 
+  const loadSampleTasks = () => {
+    setTasks(sampleTasks.map((task) => ({ ...task })));
+    setActionError("");
+    setTasksExpanded(true);
+  };
+
   const criticalPath =
     calculationResult.criticalTasks.length > 0
       ? calculationResult.criticalTasks.map((task) => task.id).join(" → ")
@@ -113,25 +123,58 @@ export default function PertPage() {
       )}
 
       <section className="rounded border border-black bg-white p-4">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="">Tasks</h2>
+        <div
+          className={`flex items-center justify-between ${tasksExpanded ? "mb-4" : ""}`}
+        >
+          <button
+            type="button"
+            className="flex items-center gap-2 text-left"
+            aria-expanded={tasksExpanded}
+            aria-controls="tasks-table"
+            onClick={() => setTasksExpanded((isExpanded) => !isExpanded)}
+          >
+            <span aria-hidden="true">
+              {tasksExpanded ? (
+                <FontAwesomeIcon icon={faCaretUp} />
+              ) : (
+                <FontAwesomeIcon icon={faCaretDown} />
+              )}
+            </span>
+            <h2>Tasks</h2>
+          </button>
 
-          {tasks.length > 0 && (
-            <button
-              type="button"
-              className="rounded border border-black bg-red-200 px-3 py-1 hover:bg-red-300"
-              onClick={clearTasks}
-            >
-              Clear All
-            </button>
-          )}
+          <div className="flex gap-2">
+            {tasks.length === 0 && (
+              <button
+                type="button"
+                className="rounded border border-black bg-blue-200 px-3 py-1 hover:bg-blue-300"
+                onClick={loadSampleTasks}
+              >
+                Load Sample Data
+              </button>
+            )}
+
+            {tasks.length > 0 && (
+              <button
+                type="button"
+                className="rounded border border-black bg-red-200 px-3 py-1 hover:bg-red-300"
+                onClick={clearTasks}
+              >
+                Clear All
+              </button>
+            )}
+          </div>
         </div>
 
-        <TaskTable
-          tasks={tasks}
-          onAddTask={addTask}
-          onRemoveTask={removeTask}
-        />
+        {tasksExpanded && (
+          <div id="tasks-table">
+            <TaskTable
+              tasks={tasks}
+              onAddTask={addTask}
+              onRemoveTask={removeTask}
+            />
+          </div>
+        )}
       </section>
 
       <section className="rounded border border-red-500 bg-red-50 p-4">

@@ -1,14 +1,5 @@
-import EventNode from "../components/EventNode";
+//import EventNode from "../components/EventNode";
 import TaskTable from "../components/TaskTable";
-
-const e = {
-  name: "A",
-  duration: 4,
-  ES: 0,
-  EF: 4,
-  LS: 0,
-  LF: 4,
-};
 
 export default function HomePage() {
   return (

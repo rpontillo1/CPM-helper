@@ -88,44 +88,33 @@ export default function TaskTable({
           </thead>
 
           <tbody>
-            {tasks.length === 0 ? (
-              <tr>
-                <td
-                  className="w-full border border-black px-3 py-6 text-center text-gray-500"
-                  colSpan={4}
-                >
-                  No tasks have been added.
+            {tasks.map((task) => (
+              <tr key={task.id} className="hover:bg-gray-100">
+                <td className="border border-black px-3 py-2 text-center font-bold">
+                  {task.id}
+                </td>
+
+                <td className="border border-black px-3 py-2 text-center">
+                  {task.duration}
+                </td>
+
+                <td className="border border-black px-3 py-2">
+                  {task.predecessors?.length > 0
+                    ? task.predecessors.join(", ")
+                    : "None"}
+                </td>
+
+                <td className="border border-black px-3 py-2 text-center">
+                  <button
+                    type="button"
+                    className="rounded border border-black bg-red-200 px-3 py-1 hover:bg-red-300"
+                    onClick={() => onRemoveTask(task.id)}
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
                 </td>
               </tr>
-            ) : (
-              tasks.map((task) => (
-                <tr key={task.id} className="hover:bg-gray-100">
-                  <td className="border border-black px-3 py-2 text-center font-bold">
-                    {task.id}
-                  </td>
-
-                  <td className="border border-black px-3 py-2 text-center">
-                    {task.duration}
-                  </td>
-
-                  <td className="border border-black px-3 py-2">
-                    {task.predecessors?.length > 0
-                      ? task.predecessors.join(", ")
-                      : "None"}
-                  </td>
-
-                  <td className="border border-black px-3 py-2 text-center">
-                    <button
-                      type="button"
-                      className="rounded border border-black bg-red-200 px-3 py-1 hover:bg-red-300"
-                      onClick={() => onRemoveTask(task.id)}
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
+            ))}
 
             <tr className="bg-blue-50">
               <td className="border border-black p-2">

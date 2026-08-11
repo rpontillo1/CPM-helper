@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import Nav from "./components/layout/Navbar";
 
@@ -10,9 +10,10 @@ import PertPage from "./pages/PertPage";
 function App() {
   return (
     <div className="w-full">
+      <Nav />
       <Routes>
-        <Route path="/" element={<PertPage />} />
-
+        <Route path="/" element={<HomePage />} />
+        <Route path="/pert" element={<PertPage />} />
         <Route path="/test" element={<TestPage />} />
       </Routes>
     </div>

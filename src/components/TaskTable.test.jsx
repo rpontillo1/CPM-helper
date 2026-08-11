@@ -3,10 +3,14 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import TaskTable from "./TaskTable";
 
 describe("TaskTable", () => {
-  it("renders an empty state when no tasks are provided", () => {
+  it("shows only the add-task row when no tasks are provided", () => {
     render(<TaskTable />);
 
-    expect(screen.getByText("No tasks have been added.")).toBeInTheDocument();
+    expect(
+      screen.queryByText("No tasks have been added."),
+    ).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Task ID")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Add task" })).toBeInTheDocument();
   });
 
   it("renders provided tasks", () => {
