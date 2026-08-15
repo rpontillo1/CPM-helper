@@ -1,6 +1,12 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCaretDown,
+  faCaretUp,
+  faPlus,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import { sampleTasks } from "../data/sampleData";
 
 const emptyTask = {
   id: "",
@@ -8,13 +14,22 @@ const emptyTask = {
   predecessors: "",
 };
 
-export default function TaskTable({
-  tasks = [],
-  onAddTask = () => {},
-  onRemoveTask = () => {},
-}) {
+export default function TaskTable({ initialTasks = [], onTasksChange }) {
+  const [tasks, setTasks] = useState(() =>
+    initialTasks.map((task) => ({
+      ...task,
+      predecessors: [...(task.predecessors ?? [])],
+    })),
+  );
   const [formData, setFormData] = useState(emptyTask);
   const [error, setError] = useState("");
+  const [isExpanded, setIsExpanded] = useState(true);
+  const tableId = useId();
+
+  const updateTasks = (nextTasks) => {
+    setTasks(nextTasks);
+    onTasksChange?.(nextTasks);
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -59,12 +74,89 @@ export default function TaskTable({
       return;
     }
 
-    onAddTask({ id, duration, predecessors });
+    updateTasks([...tasks, { id, duration, predecessors }]);
     setFormData(emptyTask);
   };
 
+  const handleLoadSampleTasks = () => {
+    const loadedTasks = sampleTasks.map((task) => ({
+      ...task,
+      predecessors: [...task.predecessors],
+    }));
+
+    updateTasks(loadedTasks);
+    setError("");
+    setIsExpanded(true);
+  };
+
+  const handleRemoveTask = (taskId) => {
+    const dependentTasks = tasks.filter((task) =>
+      task.predecessors.includes(taskId),
+    );
+
+    if (dependentTasks.length > 0) {
+      const dependentIds = dependentTasks.map((task) => task.id).join(", ");
+      setError(
+        `Task ${taskId} cannot be removed because it is a predecessor of ${dependentIds}.`,
+      );
+      return;
+    }
+
+    updateTasks(tasks.filter((task) => task.id !== taskId));
+    setError("");
+  };
+
+  const handleClearTasks = () => {
+    updateTasks([]);
+    setFormData(emptyTask);
+    setError("");
+  };
+
   return (
-    <form className="w-3/4 place-self-center" onSubmit={handleSubmit}>
+    <section className="w-full rounded border border-black bg-white p-4">
+      <div
+        className={`flex items-center justify-between ${isExpanded ? "mb-4" : ""}`}
+      >
+        <button
+          type="button"
+          className="flex items-center gap-2 text-left"
+          aria-expanded={isExpanded}
+          aria-controls={tableId}
+          onClick={() => setIsExpanded((expanded) => !expanded)}
+        >
+          <span aria-hidden="true">
+            <FontAwesomeIcon icon={isExpanded ? faCaretUp : faCaretDown} />
+          </span>
+          <h2>Tasks</h2>
+        </button>
+
+        <div className="flex gap-2">
+          {tasks.length === 0 ? (
+            <button
+              type="button"
+              className="rounded border border-black bg-blue-200 px-3 py-1 hover:bg-blue-300"
+              onClick={handleLoadSampleTasks}
+            >
+              Load Sample Data
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="rounded border border-black bg-red-200 px-3 py-1 hover:bg-red-300"
+              onClick={handleClearTasks}
+            >
+              Clear All
+            </button>
+          )}
+        </div>
+      </div>
+
+      {isExpanded && (
+        <form
+          id={tableId}
+          className="w-3/4 place-self-center"
+          onSubmit={handleSubmit}
+        >
       <div className="overflow-x-auto">
         <table className="w-full table-fixed border-collapse border border-black bg-white text-left">
           <thead className="bg-blue-200">
@@ -108,7 +200,8 @@ export default function TaskTable({
                   <button
                     type="button"
                     className="rounded border border-black bg-red-200 px-3 py-1 hover:bg-red-300"
-                    onClick={() => onRemoveTask(task.id)}
+                    aria-label={`Remove task ${task.id}`}
+                    onClick={() => handleRemoveTask(task.id)}
                   >
                     <FontAwesomeIcon icon={faTrash} />
                   </button>
@@ -172,6 +265,8 @@ export default function TaskTable({
           {error}
         </p>
       )}
-    </form>
+        </form>
+      )}
+    </section>
   );
 }

@@ -16,8 +16,7 @@ describe("TaskTable", () => {
   it("renders provided tasks", () => {
     render(
       <TaskTable
-        tasks={[{ id: "A", duration: 4, predecessors: [] }]}
-        onRemoveTask={() => {}}
+        initialTasks={[{ id: "A", duration: 4, predecessors: [] }]}
       />,
     );
 
@@ -26,10 +25,39 @@ describe("TaskTable", () => {
     expect(screen.getByText("None")).toBeInTheDocument();
   });
 
-  it("adds a task from the editable bottom row", () => {
-    const onAddTask = jest.fn();
+  it("collapses and expands the entire task table", () => {
+    render(<TaskTable />);
 
-    render(<TaskTable tasks={[]} onAddTask={onAddTask} />);
+    const toggle = screen.getByRole("button", { name: "Tasks" });
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByLabelText("Task ID")).not.toBeInTheDocument();
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByLabelText("Task ID")).toBeInTheDocument();
+  });
+
+  it("loads sample data and clears it without parent actions", () => {
+    const onTasksChange = jest.fn();
+    render(<TaskTable onTasksChange={onTasksChange} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Load Sample Data" }));
+    expect(screen.getByText("L")).toBeInTheDocument();
+    expect(onTasksChange).toHaveBeenLastCalledWith(
+      expect.arrayContaining([expect.objectContaining({ id: "A" })]),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Clear All" }));
+    expect(screen.queryByText("L")).not.toBeInTheDocument();
+    expect(onTasksChange).toHaveBeenLastCalledWith([]);
+  });
+
+  it("adds a task from the editable bottom row", () => {
+    const onTasksChange = jest.fn();
+
+    render(<TaskTable onTasksChange={onTasksChange} />);
 
     fireEvent.change(screen.getByLabelText("Task ID"), {
       target: { value: "a" },
@@ -39,10 +67,27 @@ describe("TaskTable", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Add task" }));
 
-    expect(onAddTask).toHaveBeenCalledWith({
-      id: "A",
-      duration: 4,
-      predecessors: [],
-    });
+    expect(screen.getByText("A")).toBeInTheDocument();
+    expect(onTasksChange).toHaveBeenLastCalledWith([
+      { id: "A", duration: 4, predecessors: [] },
+    ]);
+  });
+
+  it("prevents removing a task that another task depends on", () => {
+    render(
+      <TaskTable
+        initialTasks={[
+          { id: "A", duration: 4, predecessors: [] },
+          { id: "B", duration: 2, predecessors: ["A"] },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove task A" }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Task A cannot be removed because it is a predecessor of B.",
+    );
+    expect(screen.getAllByText("A")).toHaveLength(2);
   });
 });
